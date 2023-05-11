@@ -87,7 +87,6 @@ if __name__ == "__main__":
                 model_name='gpt-3.5-turbo', 
                 verbose=False) 
 
-
     # Create a ConversationEntityMemory object if not already created
     if 'entity_memory' not in session_dict:
             session_dict["entity_memory"] = ConversationBufferWindowMemory(k=args.k)
@@ -123,6 +122,6 @@ if __name__ == "__main__":
 
     temp_dict['conversation_info'] = {"Number of interactions":num_interactions, "Total Tokens":tokens_counter, "Total Cost ($)": round(total_cost_running, 4)}
 
-    with open(f"conversation_info_k={args.k}.json", "w") as outfile:
+    with open(f"conversation_info_v1_k={args.k}.json", "w") as outfile:
         json.dump(temp_dict, outfile, indent=4)
         

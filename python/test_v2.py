@@ -1,4 +1,6 @@
 
+#### Usage of SystemMessage and HumanMessage
+
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
@@ -131,9 +133,10 @@ if __name__ == "__main__":
         print(f'Tokens info: {cb.total_tokens}')
         temp_dict['conversation'].append({'input': user_input, 'output': output, 'total_tokens': cb.total_tokens, 'total_tokens_running': tokens_counter, 'cost ($)': round(cb.total_cost, 4), 'cost_running ($)': round(total_cost_running, 4)})
         print()
+        print(session_dict["entity_memory"])
 
     temp_dict['conversation_info'] = {"Number of interactions":num_interactions, "Total Tokens":tokens_counter, "Total Cost ($)": round(total_cost_running, 4)}
 
-    with open(f"conversation_info_k={args.k}.json", "w") as outfile:
+    with open(f"conversation_info_v2_k={args.k}.json", "w") as outfile:
         json.dump(temp_dict, outfile, indent=4)
         
