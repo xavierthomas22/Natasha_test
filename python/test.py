@@ -15,6 +15,7 @@ import json
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Natasha Test Env')
     parser.add_argument('-k', type=int, default=10, help='Window size for history')
+    parser.add_argument('--openai_api_key', type=str, default='')
     args = parser.parse_args()
 
     template =  """You should pretend that you are having a conversation with a friend.
@@ -77,7 +78,7 @@ if __name__ == "__main__":
         session_dict.entity_memory.buffer.clear()
 
     # Ask the user to enter their OpenAI API key
-    API_O = "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"
+    API_O = args.openai_api_key
     session_dict = init_fn()
 
     # Create an OpenAI instance
