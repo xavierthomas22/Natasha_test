@@ -2,7 +2,7 @@
 import { OpenAIChat } from "langchain/llms";
 
 //Import the BufferMemory module
-import { BufferMemory } from "langchain/memory";
+import { BufferWindowMemory } from "langchain/memory";
 
 //Import the Chains module
 import { LLMChain } from "langchain/chains";
@@ -18,8 +18,8 @@ import {
 } from "langchain/prompts";
 
 export const run = async () => {
-  //Instantiate the BufferMemory passing the memory key for storing state
-  const memory = new BufferMemory({ memoryKey: "chat_history" });
+  //Instantiate the BufferWindowMemory passing the memory key for storing state
+  const memory = new BufferWindowMemory({ memoryKey: "chat_history", k: 10  });
 
   //Instantiante the OpenAI model
   //Pass the "temperature" parameter which controls the RANDOMNESS of the model's output. A lower temperature will result in more predictable output, while a higher temperature will result in more random output. The temperature parameter is set between 0 and 1, with 0 being the most predictable and 1 being the most random
