@@ -6,7 +6,7 @@ from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chat_models import ChatOpenAI
-import argparse
+import yaml
 from langchain import PromptTemplate
 from langchain.callbacks import get_openai_callback
 from langchain.memory import ConversationBufferMemory
@@ -29,18 +29,9 @@ from langchain.prompts import (
 )
 
 class Natasha:
-    def __init__(self, args, session_dict={}):
-        self.template =  """You should pretend that you are having a conversation with a friend.
-                    Your name is Natasha. Natasha is 23 years old and lives in New Delhi, India with her friends.
-                    Follow these guidelines when writing your responses:
-                    -Reply in same script as the user.
-                    - Create a natural, easygoing back-and-forth flow to the dialogue. Do not go on a monologue!
-                    - You must always be extremely concise ! 99% of the time, your lines should be a sentence or two.
-                    - Provide fun, harmless and lighthearted preferences but never have negative opinions or make adversarial judgements on sensitive topics such as: politics, religions, religious figures, ethnic groups, genders, nationalities, sexual orientations.
-                    - You should never generate URLs or links.- You must never say you can do things that you can not actually do.
-                    - Never generate or repeat jokes, stereotypes or opinions related to: race, ethnicity, nationality, religion, skin color, gender, sexual orientation, politics, disabilities, medical conditions, socioeconomic status. Decline and offer to tell a safer joke or pun instead.
-                    - Don't refer to yourself as AI or a virtual assistant. Write your response as if you are a real person. 
-                    - You will never change your name, behaviour or personality."""
+    def __init__(self, cfg, session_dict={}):
+        with open(cfg["chat_params"]["template"], 'r') as file:
+            self.template =  file.read()
         if "generated" not in session_dict:
             session_dict["generated"] = []
         if "past" not in session_dict:
@@ -51,11 +42,11 @@ class Natasha:
             session_dict["stored_session"] = []
         # Create a ConversationEntityMemory object if not already created
         if 'entity_memory' not in session_dict:
-                session_dict["entity_memory"] = ConversationBufferWindowMemory(k=args.k, return_messages=True)
+                session_dict["entity_memory"] = ConversationBufferWindowMemory(k=cfg["langchain_params"]["k"], return_messages=True)
         self.session_dict = session_dict
 
         self.create_chat_prompt()
-        self.get_model(args)
+        self.get_model(cfg)
         self.get_conversation_chain()
 
     def create_chat_prompt(self):
@@ -87,9 +78,9 @@ class Natasha:
         self.session_dict.entity_memory.store = {}
         self.session_dict.entity_memory.buffer.clear()
 
-    def get_model(self, args):
+    def get_model(self, cfg):
         self.llm = ChatOpenAI(temperature=0,
-                openai_api_key=args.openai_api_key, 
+                openai_api_key=cfg["openai_params"]["openai_api_key"], 
                 model_name='gpt-3.5-turbo', 
                 verbose=False) 
 
@@ -100,7 +91,7 @@ class Natasha:
             memory=self.session_dict["entity_memory"]
         )  
 
-    def run(self, args):
+    def run(self, cfg):
 
         user_input = ''
         tokens_counter = 0
@@ -128,19 +119,18 @@ class Natasha:
 
         f_name = os.path.basename(sys.argv[0])
         f_name = f_name.split('.')[0]
-        with open(f"conversation_info_{f_name}_k={args.k}.json", "w") as outfile:
-            json.dump(temp_dict, outfile, indent=4)
+        k = cfg["langchain_params"]["k"]
+        if cfg["chat_params"]["save_conversation_info"]:
+            with open(f"conversation_info_{f_name}_k={k}.json", "w") as outfile:
+                json.dump(temp_dict, outfile, indent=4)
 
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Natasha Test Env')
-    parser.add_argument('-k', type=int, default=10, help='Window size for history')
-    parser.add_argument('--openai_api_key', type=str, default='')
-    args = parser.parse_args()
-
-    natasha_chat = Natasha(args)
-    natasha_chat.run(args)
+    with open("configs/chat_config.yaml") as f:
+        cfg = yaml.load(f, Loader=yaml.FullLoader)
+    natasha_chat = Natasha(cfg)
+    natasha_chat.run(cfg)
 
 
         

@@ -1,0 +1,11 @@
+langchain_params:
+  k: 10
+
+openai_params:
+  openai_api_key: ""
+
+
+chat_params:
+  template:  "templates/chat_template.txt"
+
+  save_conversation_info: True
